@@ -3,29 +3,44 @@ should = require('chai').should()
 describe 'A Work item', ->
   class WorkItem
     constructor: ->
-      @statename = 'New permit'
+      @state = 'New permit'
     submit: ->
-      @statename = 'Submitted permit'      
+      if @state is 'New permit'
+        @state = 'Submitted permit'
+        true
+      else
+        false
     approve: ->
-      @statename = 'Approved permit'
+      if @state is 'Submitted permit'
+        @state = 'Approved permit'
+        true
+      else 
+        false
     reject: ->
-      @statename = 'Rejected permit'
+      @state = 'Rejected permit'
+      return true
 
   it 'should when created have an initial state "New permit"', ->
     myWorkItem = new WorkItem
-    myWorkItem.statename.should.equal 'New permit'
+    myWorkItem.state.should.equal 'New permit'
 
   it 'should when submitted have a state "Submitted permit"', ->
     myWorkItem = new WorkItem
-    myWorkItem.submit()
-    myWorkItem.statename.should.equal 'Submitted permit'
+    myWorkItem.submit().should.equal true
+    myWorkItem.state.should.equal 'Submitted permit'
 
   it 'should when approved have a state "Approved permit"', ->
     myWorkItem = new WorkItem
-    myWorkItem.approve()
-    myWorkItem.statename.should.equal 'Approved permit'
+    myWorkItem.submit().should.equal true
+    myWorkItem.approve().should.equal true
+    myWorkItem.state.should.equal 'Approved permit'
 
   it 'should when rejected have state "Rejected permit"', ->
     myWorkItem = new WorkItem
-    myWorkItem.reject()
-    myWorkItem.statename.should.equal 'Rejected permit'
+    myWorkItem.reject().should.equal true
+    myWorkItem.state.should.equal 'Rejected permit'
+
+  it 'should not be able to approve from initial state', ->
+    myWorkItem = new WorkItem
+    myWorkItem.approve().should.equal false
+    myWorkItem.state.should.equal 'New permit'
