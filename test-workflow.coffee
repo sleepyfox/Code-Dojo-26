@@ -4,36 +4,38 @@ describe 'A Work item', ->
   class WorkItem
     constructor: ->
       @state = 'New permit'
-    submit: ->
-      if @state is 'New permit'
-        @state = 'Submitted permit'
-        true
+    transition: (action) ->
+      allowed_transitions = {
+        'New permit': ['submit'],
+        'Submitted permit': ['approve', 'reject'],
+        'Approved permit': [],
+        'Rejected permit': []
+      }
+      if allowed_transitions[@state].indexOf(action) is -1
+        false
       else
-        false
-    approve: ->
-      if @state is 'Submitted permit'
-        @state = 'Approved permit'
+        switch action
+          when 'submit'
+            @state = 'Submitted permit'
+          when 'approve'
+            @state = 'Approved permit'
+          when 'reject'
+            @state = 'Rejected permit'
+          else
+            false
         true
-      else 
-        false
-    reject: ->
-      if @state is 'Submitted permit'
-        @state = 'Rejected permit'
-        true
-      else
-        false
 
   workItemFactory = (state) -> # Abstract factory with strategy
     states = { 
       'submitted': (item) -> 
          return item
       'approved': (item) -> 
-        if item.approve() then item else false
+        if item.transition('approve') then item else false
       'rejected': (item) -> 
-        if item.reject() then item else false
+        if item.transition('reject') then item else false
     }
     myItem = new WorkItem
-    if myItem.submit() 
+    if myItem.transition('submit') 
       states[state](myItem)
     else
       false
@@ -56,21 +58,21 @@ describe 'A Work item', ->
 
   it 'should not be able to approve from initial state', ->
     myWorkItem = new WorkItem
-    myWorkItem.approve().should.equal false
+    myWorkItem.transition('approve').should.equal false
     myWorkItem.state.should.equal 'New permit'
 
   it 'should not be able to reject from initial state', ->
     myWorkItem = new WorkItem
-    myWorkItem.reject().should.equal false
+    myWorkItem.transition('reject').should.equal false
     myWorkItem.state.should.equal 'New permit'
 
   it 'should not be able to submit from a rejected state', ->
     myWorkItem = workItemFactory('rejected')
-    myWorkItem.submit().should.equal false
+    myWorkItem.transition('submit').should.equal false
 
   it 'should not be able to submit from an approved state', ->
     myWorkItem = workItemFactory('approved')
-    myWorkItem.submit().should.equal false
+    myWorkItem.transition('submit').should.equal false
 
   it 'a factory supplied submitted item should have state "Submitted permit"', ->
     workItemFactory('submitted').state.should.equal 'Submitted permit'
