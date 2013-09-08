@@ -5,40 +5,30 @@ describe 'A Work item', ->
     constructor: ->
       @state = 'New permit'
     transition: (action) ->
-      allowed_transitions = {
-        'New permit': ['submit'],
-        'Submitted permit': ['approve', 'reject'],
-        'Approved permit': [],
-        'Rejected permit': []
-      }
-      if allowed_transitions[@state].indexOf(action) is -1
-        false
-      else
-        switch action
-          when 'submit'
-            @state = 'Submitted permit'
-          when 'approve'
-            @state = 'Approved permit'
-          when 'reject'
-            @state = 'Rejected permit'
-          else
-            false
+      allowed_transitions = 
+        'New permit': 
+          'submit': 'Submitted permit'
+        'Submitted permit':
+          'approve': 'Approved permit'
+          'reject': 'Rejected permit'
+        'Approved permit': {}
+        'Rejected permit': {}
+      if allowed_transitions[@state]?.hasOwnProperty(action) 
+        @state = allowed_transitions[@state][action]
         true
+      else 
+        false
 
   workItemFactory = (state) -> # Abstract factory with strategy
-    states = { 
+    states = 
       'submitted': (item) -> 
          return item
       'approved': (item) -> 
         if item.transition('approve') then item else false
       'rejected': (item) -> 
         if item.transition('reject') then item else false
-    }
     myItem = new WorkItem
-    if myItem.transition('submit') 
-      states[state](myItem)
-    else
-      false
+    myItem.transition('submit') and states[state](myItem)
     
   it 'should when created have an initial state "New permit"', ->
     myWorkItem = new WorkItem
@@ -73,6 +63,10 @@ describe 'A Work item', ->
   it 'should not be able to submit from an approved state', ->
     myWorkItem = workItemFactory('approved')
     myWorkItem.transition('submit').should.equal false
+
+  it 'should not allow a spurious transition', ->
+    myWorkItem = new WorkItem
+    myWorkItem.transition('fubar').should.equal false
 
   it 'a factory supplied submitted item should have state "Submitted permit"', ->
     workItemFactory('submitted').state.should.equal 'Submitted permit'
