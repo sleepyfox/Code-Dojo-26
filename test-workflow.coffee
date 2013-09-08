@@ -23,38 +23,21 @@ describe 'A Work item', ->
       else
         false
 
-  submittedWorkItem = -> # Factory
-    item = new WorkItem
-    if item.submit() is true
-      item
+  workItemFactory = (state) -> # Abstract factory with strategy
+    states = { 
+      'submitted': (item) -> 
+         return item
+      'approved': (item) -> 
+        if item.approve() then item else false
+      'rejected': (item) -> 
+        if item.reject() then item else false
+    }
+    myItem = new WorkItem
+    if myItem.submit() 
+      states[state](myItem)
     else
       false
-
-  approvedWorkItem = -> # factory
-    item = submittedWorkItem()
-    if item.approve() is true
-      item
-    else
-      false
-
-  rejectedWorkItem = -> # factory
-    item = submittedWorkItem()
-    if item.reject() is true
-      item
-    else
-      false
-
-  workItemFactory = (state) -> # Abstract factory
-    switch state
-      when 'submitted' 
-        submittedWorkItem()
-      when 'approved'
-        approvedWorkItem()
-      when 'rejected'
-        rejectedWorkItem()
-      else
-        false
-
+    
   it 'should when created have an initial state "New permit"', ->
     myWorkItem = new WorkItem
     myWorkItem.state.should.equal 'New permit'
