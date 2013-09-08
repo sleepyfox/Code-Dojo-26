@@ -53,3 +53,15 @@ describe 'A Work item', ->
     myWorkItem = new WorkItem
     myWorkItem.reject().should.equal false
     myWorkItem.state.should.equal 'New permit'
+
+  it 'should not be able to submit from a rejected state', ->
+    myWorkItem = new WorkItem
+    myWorkItem.submit().should.equal true
+    myWorkItem.reject().should.equal true
+    myWorkItem.submit().should.equal false
+
+  it 'should not be able to submit from an approved state', ->
+    myWorkItem = new WorkItem
+    myWorkItem.submit().should.equal true
+    myWorkItem.approve().should.equal true
+    myWorkItem.submit().should.equal false
