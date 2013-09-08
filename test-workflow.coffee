@@ -44,20 +44,31 @@ describe 'A Work item', ->
     else
       false
 
+  workItemFactory = (state) -> # Abstract factory
+    switch state
+      when 'submitted' 
+        submittedWorkItem()
+      when 'approved'
+        approvedWorkItem()
+      when 'rejected'
+        rejectedWorkItem()
+      else
+        false
+
   it 'should when created have an initial state "New permit"', ->
     myWorkItem = new WorkItem
     myWorkItem.state.should.equal 'New permit'
 
   it 'should when submitted have a state "Submitted permit"', ->
-    myWorkItem = submittedWorkItem()
+    myWorkItem = workItemFactory('submitted')
     myWorkItem.state.should.equal 'Submitted permit'
 
   it 'should when approved have a state "Approved permit"', ->
-    myWorkItem = approvedWorkItem()
+    myWorkItem = workItemFactory('approved')
     myWorkItem.state.should.equal 'Approved permit'
 
   it 'should when rejected have state "Rejected permit"', ->
-    myWorkItem = rejectedWorkItem()
+    myWorkItem = workItemFactory('rejected')
     myWorkItem.state.should.equal 'Rejected permit'
 
   it 'should not be able to approve from initial state', ->
@@ -71,12 +82,18 @@ describe 'A Work item', ->
     myWorkItem.state.should.equal 'New permit'
 
   it 'should not be able to submit from a rejected state', ->
-    myWorkItem = rejectedWorkItem()
+    myWorkItem = workItemFactory('rejected')
     myWorkItem.submit().should.equal false
 
   it 'should not be able to submit from an approved state', ->
-    myWorkItem = approvedWorkItem()
+    myWorkItem = workItemFactory('approved')
     myWorkItem.submit().should.equal false
 
   it 'a factory supplied submitted item should have state "Submitted permit"', ->
-    submittedWorkItem().state.should.equal 'Submitted permit'
+    workItemFactory('submitted').state.should.equal 'Submitted permit'
+
+  it 'a factory supplied submitted item should have state "Approved permit"', ->
+    workItemFactory('approved').state.should.equal 'Approved permit'
+
+  it 'a factory supplied submitted item should have state "Rejected permit"', ->
+    workItemFactory('rejected').state.should.equal 'Rejected permit'
