@@ -1,6 +1,8 @@
 should = require('chai').should()
 
 describe 'A Work item', ->
+  SUCCESSFUL_TRANSITION = true
+  TRANSITION_FAILED = false
   class WorkItem
     constructor: ->
       @state = 'New permit'
@@ -15,18 +17,18 @@ describe 'A Work item', ->
         'Rejected permit': {}
       if allowed_transitions[@state]?.hasOwnProperty(action) 
         @state = allowed_transitions[@state][action]
-        true
+        SUCCESSFUL_TRANSITION
       else 
-        false
+        TRANSITION_FAILED
 
   workItemFactory = (state) -> # Abstract factory with strategy
     states = 
       'submitted': (item) -> 
          return item
       'approved': (item) -> 
-        if item.transition('approve') then item else false
+        if item.transition('approve') then item else TRANSITION_FAILED
       'rejected': (item) -> 
-        if item.transition('reject') then item else false
+        if item.transition('reject') then item else TRANSITION_FAILED
     myItem = new WorkItem
     myItem.transition('submit') and states[state](myItem)
     
@@ -48,25 +50,25 @@ describe 'A Work item', ->
 
   it 'should not be able to approve from initial state', ->
     myWorkItem = new WorkItem
-    myWorkItem.transition('approve').should.equal false
+    myWorkItem.transition('approve').should.equal TRANSITION_FAILED
     myWorkItem.state.should.equal 'New permit'
 
   it 'should not be able to reject from initial state', ->
     myWorkItem = new WorkItem
-    myWorkItem.transition('reject').should.equal false
+    myWorkItem.transition('reject').should.equal TRANSITION_FAILED
     myWorkItem.state.should.equal 'New permit'
 
   it 'should not be able to submit from a rejected state', ->
     myWorkItem = workItemFactory('rejected')
-    myWorkItem.transition('submit').should.equal false
+    myWorkItem.transition('submit').should.equal TRANSITION_FAILED
 
   it 'should not be able to submit from an approved state', ->
     myWorkItem = workItemFactory('approved')
-    myWorkItem.transition('submit').should.equal false
+    myWorkItem.transition('submit').should.equal TRANSITION_FAILED
 
   it 'should not allow a spurious transition', ->
     myWorkItem = new WorkItem
-    myWorkItem.transition('fubar').should.equal false
+    myWorkItem.transition('fubar').should.equal TRANSITION_FAILED
 
   it 'a factory supplied submitted item should have state "Submitted permit"', ->
     workItemFactory('submitted').state.should.equal 'Submitted permit'
