@@ -17,8 +17,11 @@ describe 'A Work item', ->
       else 
         false
     reject: ->
-      @state = 'Rejected permit'
-      return true
+      if @state is 'Submitted permit'
+        @state = 'Rejected permit'
+        true
+      else
+        false
 
   it 'should when created have an initial state "New permit"', ->
     myWorkItem = new WorkItem
@@ -37,10 +40,16 @@ describe 'A Work item', ->
 
   it 'should when rejected have state "Rejected permit"', ->
     myWorkItem = new WorkItem
+    myWorkItem.submit().should.equal true
     myWorkItem.reject().should.equal true
     myWorkItem.state.should.equal 'Rejected permit'
 
   it 'should not be able to approve from initial state', ->
     myWorkItem = new WorkItem
     myWorkItem.approve().should.equal false
+    myWorkItem.state.should.equal 'New permit'
+
+  it 'should not be able to reject from initial state', ->
+    myWorkItem = new WorkItem
+    myWorkItem.reject().should.equal false
     myWorkItem.state.should.equal 'New permit'
