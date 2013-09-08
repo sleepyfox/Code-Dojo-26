@@ -23,24 +23,28 @@ describe 'A Work item', ->
       else
         false
 
+  submittedWorkItem = ->
+    item = new WorkItem
+    if item.submit() is true
+      item
+    else
+      null
+
   it 'should when created have an initial state "New permit"', ->
     myWorkItem = new WorkItem
     myWorkItem.state.should.equal 'New permit'
 
   it 'should when submitted have a state "Submitted permit"', ->
-    myWorkItem = new WorkItem
-    myWorkItem.submit().should.equal true
+    myWorkItem = submittedWorkItem()
     myWorkItem.state.should.equal 'Submitted permit'
 
   it 'should when approved have a state "Approved permit"', ->
-    myWorkItem = new WorkItem
-    myWorkItem.submit().should.equal true
+    myWorkItem = submittedWorkItem()
     myWorkItem.approve().should.equal true
     myWorkItem.state.should.equal 'Approved permit'
 
   it 'should when rejected have state "Rejected permit"', ->
-    myWorkItem = new WorkItem
-    myWorkItem.submit().should.equal true
+    myWorkItem = submittedWorkItem()
     myWorkItem.reject().should.equal true
     myWorkItem.state.should.equal 'Rejected permit'
 
@@ -55,13 +59,14 @@ describe 'A Work item', ->
     myWorkItem.state.should.equal 'New permit'
 
   it 'should not be able to submit from a rejected state', ->
-    myWorkItem = new WorkItem
-    myWorkItem.submit().should.equal true
+    myWorkItem = submittedWorkItem()
     myWorkItem.reject().should.equal true
     myWorkItem.submit().should.equal false
 
   it 'should not be able to submit from an approved state', ->
-    myWorkItem = new WorkItem
-    myWorkItem.submit().should.equal true
+    myWorkItem = submittedWorkItem()
     myWorkItem.approve().should.equal true
     myWorkItem.submit().should.equal false
+
+  it 'a factory supplied submitted item should have state "Submitted permit"', ->
+    submittedWorkItem().state.should.equal 'Submitted permit'
