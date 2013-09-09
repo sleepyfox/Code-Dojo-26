@@ -3,9 +3,11 @@ should = require('chai').should()
 describe 'A Work item', ->
   SUCCESSFUL_TRANSITION = true
   TRANSITION_FAILED = false
+  INITIAL_STATE = 'New permit'
+  
   class WorkItem
     constructor: ->
-      @state = 'New permit'
+      @state = INITIAL_STATE
     transition: (action) ->
       allowed_transitions = 
         'New permit': 
