@@ -31,13 +31,20 @@ describe 'A Work item', ->
       'created': (item) ->
         item # identity fn
       'submitted': (item) -> 
-        if myItem.transition('submit') then item else TRANSITION_FAILED
+        if item.transition('submit') 
+          item 
+        else 
+          TRANSITION_FAILED
       'approved': (item) -> 
-        unless myItem.transition('submit') then return TRANSITION_FAILED
-        if item.transition('approve') then item else TRANSITION_FAILED
+        if item.transition('submit') and item.transition('approve') 
+          item 
+        else 
+          TRANSITION_FAILED
       'rejected': (item) -> 
-        unless myItem.transition('submit') then return TRANSITION_FAILED
-        if item.transition('reject') then item else TRANSITION_FAILED
+        if item.transition('submit') and item.transition('reject') 
+          item 
+        else 
+          TRANSITION_FAILED
     myItem = new WorkItem exampleWorkflow
     states[state](myItem)
     
