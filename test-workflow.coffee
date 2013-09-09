@@ -49,7 +49,7 @@ describe 'A Work item', ->
     states[state](myItem)
     
   it 'should when created have an initial state "New permit"', ->
-    myWorkItem = new WorkItem exampleWorkflow
+    myWorkItem = workItemFactory('created')
     myWorkItem.state.should.equal 'New permit'
 
   it 'should when submitted have a state "Submitted permit"', ->
@@ -65,12 +65,12 @@ describe 'A Work item', ->
     myWorkItem.state.should.equal 'Rejected permit'
 
   it 'should not be able to approve from initial state', ->
-    myWorkItem = new WorkItem exampleWorkflow
+    myWorkItem = workItemFactory('created')
     myWorkItem.transition('approve').should.equal TRANSITION_FAILED
     myWorkItem.state.should.equal 'New permit'
 
   it 'should not be able to reject from initial state', ->
-    myWorkItem = new WorkItem exampleWorkflow
+    myWorkItem = workItemFactory('created')
     myWorkItem.transition('reject').should.equal TRANSITION_FAILED
     myWorkItem.state.should.equal 'New permit'
 
@@ -83,7 +83,7 @@ describe 'A Work item', ->
     myWorkItem.transition('submit').should.equal TRANSITION_FAILED
 
   it 'should not allow a spurious transition', ->
-    myWorkItem = new WorkItem exampleWorkflow
+    myWorkItem = workItemFactory('created')
     myWorkItem.transition('fubar').should.equal TRANSITION_FAILED
 
   it 'a factory supplied submitted item should have state "Submitted permit"', ->
