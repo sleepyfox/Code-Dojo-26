@@ -22,7 +22,7 @@ describe 'A Work item', ->
     transition: (action) ->
       if @workflow.transitions?[@state]?.hasOwnProperty(action) 
         @state = @workflow.transitions?[@state]?[action]
-        SUCCESSFUL_TRANSITION
+        this
       else 
         TRANSITION_FAILED
 
@@ -31,20 +31,11 @@ describe 'A Work item', ->
       'created': (item) ->
         item # identity fn
       'submitted': (item) -> 
-        if item.transition('submit') 
-          item 
-        else 
-          TRANSITION_FAILED
+        item.transition('submit') or TRANSITION_FAILED 
       'approved': (item) -> 
-        if item.transition('submit') and item.transition('approve') 
-          item 
-        else 
-          TRANSITION_FAILED
+        item.transition('submit').transition('approve') or TRANSITION_FAILED
       'rejected': (item) -> 
-        if item.transition('submit') and item.transition('reject') 
-          item 
-        else 
-          TRANSITION_FAILED
+        item.transition('submit').transition('reject') or TRANSITION_FAILED
     myItem = new WorkItem exampleWorkflow
     states[state](myItem)
     
