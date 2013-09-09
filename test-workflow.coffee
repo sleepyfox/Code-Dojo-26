@@ -3,39 +3,46 @@ should = require('chai').should()
 describe 'A Work item', ->
   SUCCESSFUL_TRANSITION = true
   TRANSITION_FAILED = false
-  INITIAL_STATE = 'New permit'
-  
+
+  exampleWorkflow =
+    initialState: 'New permit'
+    transitions:
+      'New permit': 
+        'submit': 'Submitted permit'
+      'Submitted permit':
+        'approve': 'Approved permit'
+        'reject': 'Rejected permit'
+      'Approved permit': {}
+      'Rejected permit': {}
+
   class WorkItem
-    constructor: ->
-      @state = INITIAL_STATE
+    constructor: (@workflow) ->
+      @state = @workflow.initialState
+
     transition: (action) ->
-      allowed_transitions = 
-        'New permit': 
-          'submit': 'Submitted permit'
-        'Submitted permit':
-          'approve': 'Approved permit'
-          'reject': 'Rejected permit'
-        'Approved permit': {}
-        'Rejected permit': {}
-      if allowed_transitions[@state]?.hasOwnProperty(action) 
-        @state = allowed_transitions[@state][action]
+      if @workflow.transitions?[@state]?.hasOwnProperty(action) 
+        @state = @workflow.transitions?[@state]?[action]
         SUCCESSFUL_TRANSITION
       else 
         TRANSITION_FAILED
 
-  workItemFactory = (state) -> # Abstract factory with strategy
+  workItemFactory = (state) -> 
     states = 
+      'created': (item) ->
+        item # identity fn
       'submitted': (item) -> 
-         return item
+        if myItem.transition('submit') then item else TRANSITION_FAILED
       'approved': (item) -> 
+        unless myItem.transition('submit') then return TRANSITION_FAILED
         if item.transition('approve') then item else TRANSITION_FAILED
       'rejected': (item) -> 
+        unless myItem.transition('submit') then return TRANSITION_FAILED
         if item.transition('reject') then item else TRANSITION_FAILED
-    myItem = new WorkItem
-    myItem.transition('submit') and states[state](myItem)
+    myItem = new WorkItem exampleWorkflow
+    states[state](myItem)
     
   it 'should when created have an initial state "New permit"', ->
-    myWorkItem = new WorkItem
+    myWorkItem = new WorkItem exampleWorkflow
     myWorkItem.state.should.equal 'New permit'
 
   it 'should when submitted have a state "Submitted permit"', ->
@@ -51,12 +58,12 @@ describe 'A Work item', ->
     myWorkItem.state.should.equal 'Rejected permit'
 
   it 'should not be able to approve from initial state', ->
-    myWorkItem = new WorkItem
+    myWorkItem = new WorkItem exampleWorkflow
     myWorkItem.transition('approve').should.equal TRANSITION_FAILED
     myWorkItem.state.should.equal 'New permit'
 
   it 'should not be able to reject from initial state', ->
-    myWorkItem = new WorkItem
+    myWorkItem = new WorkItem exampleWorkflow
     myWorkItem.transition('reject').should.equal TRANSITION_FAILED
     myWorkItem.state.should.equal 'New permit'
 
@@ -69,7 +76,7 @@ describe 'A Work item', ->
     myWorkItem.transition('submit').should.equal TRANSITION_FAILED
 
   it 'should not allow a spurious transition', ->
-    myWorkItem = new WorkItem
+    myWorkItem = new WorkItem exampleWorkflow
     myWorkItem.transition('fubar').should.equal TRANSITION_FAILED
 
   it 'a factory supplied submitted item should have state "Submitted permit"', ->
