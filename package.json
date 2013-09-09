@@ -1,6 +1,6 @@
 {
-  "name": "CodeDojo25",
-  "description": "25th Code Dojo using the Roman numeral kata",
+  "name": "CodeDojo26",
+  "description": "26th Code Dojo using the work-flow kata",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
