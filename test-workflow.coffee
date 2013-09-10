@@ -26,6 +26,9 @@ describe 'A Work item', ->
       else 
         TRANSITION_FAILED
 
+    allowedTransitions: ->
+      (k for k of @workflow.transitions[@state]) # returns an array of transitions
+
     getState: ->
       @state
 
@@ -88,4 +91,27 @@ describe 'A Work item', ->
 
   it 'a factory supplied submitted item should have state "Rejected permit"', ->
     workItemFactory('rejected').getState().should.equal 'Rejected permit'
+
+  it 'should have only a submit transition when newly created', ->
+    myWorkItem = workItemFactory('created')
+    myWorkItem.allowedTransitions().should.be.a('array')
+    myWorkItem.allowedTransitions().should.have.length 1
+    myWorkItem.allowedTransitions()[0].should.equal 'submit'
+
+  it 'should have no transitions from state "approved"', ->
+    myWorkItem = workItemFactory('approved')
+    myWorkItem.allowedTransitions().should.be.a('array')
+    myWorkItem.allowedTransitions().should.have.length 0
+
+  it 'should have no transitions from state "rejected"', ->
+    myWorkItem = workItemFactory('rejected')
+    myWorkItem.allowedTransitions().should.be.a('array')
+    myWorkItem.allowedTransitions().should.have.length 0
+
+  it 'should have two transitions from state "submitted"', ->
+    myWorkItem = workItemFactory('submitted')
+    myWorkItem.allowedTransitions().should.be.a('array')
+    myWorkItem.allowedTransitions().should.have.length 2
+    myWorkItem.allowedTransitions()[0].should.equal 'approve'
+    myWorkItem.allowedTransitions()[1].should.equal 'reject'
 
