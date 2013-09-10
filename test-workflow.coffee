@@ -22,9 +22,12 @@ describe 'A Work item', ->
     transition: (action) ->
       if @workflow.transitions?[@state]?.hasOwnProperty(action) 
         @state = @workflow.transitions?[@state]?[action]
-        this
+        return this
       else 
         TRANSITION_FAILED
+
+    getState: ->
+      @state
 
   workItemFactory = (state) -> 
     states = 
@@ -41,29 +44,29 @@ describe 'A Work item', ->
     
   it 'should when created have an initial state "New permit"', ->
     myWorkItem = workItemFactory('created')
-    myWorkItem.state.should.equal 'New permit'
+    myWorkItem.getState().should.equal 'New permit'
 
   it 'should when submitted have a state "Submitted permit"', ->
     myWorkItem = workItemFactory('submitted')
-    myWorkItem.state.should.equal 'Submitted permit'
+    myWorkItem.getState().should.equal 'Submitted permit'
 
   it 'should when approved have a state "Approved permit"', ->
     myWorkItem = workItemFactory('approved')
-    myWorkItem.state.should.equal 'Approved permit'
+    myWorkItem.getState().should.equal 'Approved permit'
 
   it 'should when rejected have state "Rejected permit"', ->
     myWorkItem = workItemFactory('rejected')
-    myWorkItem.state.should.equal 'Rejected permit'
+    myWorkItem.getState().should.equal 'Rejected permit'
 
   it 'should not be able to approve from initial state', ->
     myWorkItem = workItemFactory('created')
     myWorkItem.transition('approve').should.equal TRANSITION_FAILED
-    myWorkItem.state.should.equal 'New permit'
+    myWorkItem.getState().should.equal 'New permit'
 
   it 'should not be able to reject from initial state', ->
     myWorkItem = workItemFactory('created')
     myWorkItem.transition('reject').should.equal TRANSITION_FAILED
-    myWorkItem.state.should.equal 'New permit'
+    myWorkItem.getState().should.equal 'New permit'
 
   it 'should not be able to submit from a rejected state', ->
     myWorkItem = workItemFactory('rejected')
@@ -78,10 +81,11 @@ describe 'A Work item', ->
     myWorkItem.transition('fubar').should.equal TRANSITION_FAILED
 
   it 'a factory supplied submitted item should have state "Submitted permit"', ->
-    workItemFactory('submitted').state.should.equal 'Submitted permit'
+    workItemFactory('submitted').getState().should.equal 'Submitted permit'
 
   it 'a factory supplied submitted item should have state "Approved permit"', ->
-    workItemFactory('approved').state.should.equal 'Approved permit'
+    workItemFactory('approved').getState().should.equal 'Approved permit'
 
   it 'a factory supplied submitted item should have state "Rejected permit"', ->
-    workItemFactory('rejected').state.should.equal 'Rejected permit'
+    workItemFactory('rejected').getState().should.equal 'Rejected permit'
+
