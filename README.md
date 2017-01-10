@@ -6,7 +6,7 @@ Dependencies should be loaded first by running npm like so:
 
 	npm install
 	
-The tests can be run from the command-line with [mocha](http://visionmedia.github.io/mocha/):
+The tests can be run from the command-line with [mocha](http://mochajs.org/):
 	
 	mocha --compilers coffee:coffee-script -R spec test-*.coffee
 
